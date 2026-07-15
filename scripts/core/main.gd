@@ -6,6 +6,7 @@ extends Node2D
 @onready var game_state: GameState = $GameState
 @onready var event_manager: EventManager = $EventManager
 @onready var technology_manager: TechnologyManager = $TechnologyManager
+@onready var infrastructure_manager: InfrastructureManager = $InfrastructureManager
 
 
 func _ready() -> void:
@@ -29,15 +30,20 @@ func _ready() -> void:
 	hud.probe_requested.connect(universe_map.launch_probe_to_selected)
 	hud.event_choice_requested.connect(_on_event_choice)
 	hud.research_requested.connect(technology_manager.research)
+	hud.infrastructure_requested.connect(_on_infrastructure_requested)
+	hud.blackout_requested.connect(game_state.enter_blackout)
 	game_state.state_changed.connect(hud.update_game_state)
 	game_state.resources_changed.connect(hud.update_resources)
 	game_state.probes_changed.connect(hud.update_probes)
+	game_state.void_changed.connect(hud.update_void)
 	game_state.travel_status_changed.connect(_on_travel_status_changed)
 	game_state.log_message_added.connect(hud.add_log_message)
 	game_state.signature_increased.connect(universe_map.trigger_signature_pulse)
 	technology_manager.technologies_changed.connect(hud.set_technologies)
 	technology_manager.research_completed.connect(_on_research_completed)
 	technology_manager.configure(game_state)
+	infrastructure_manager.catalog_changed.connect(hud.set_infrastructure)
+	infrastructure_manager.configure(game_state)
 	game_state.publish_initial_state()
 	_on_travel_status_changed(game_state.current_system_id, false)
 
@@ -68,6 +74,12 @@ func choose_event(index: int) -> void:
 func _on_event_choice(index: int) -> void:
 	choose_event(index)
 	hud.close_event()
+
+func _on_infrastructure_requested(id: String) -> void:
+	var system := universe_map.selected_system()
+	if system != null:
+		infrastructure_manager.build(id, system, game_state.current_system_id)
+		hud.display_system(system)
 
 func _on_probe_requested(destination: StarSystemData, distance: float) -> void:
 	if game_state.launch_probe():

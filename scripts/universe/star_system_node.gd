@@ -87,6 +87,8 @@ func _draw() -> void:
 			draw_arc(Vector2.ZERO, orbit_radius, 0.48 + level * 0.55, 2.45 + level * 0.3, 22, Color(0.78, 0.63, 0.37, 0.58), 0.85, true)
 	if data.depleted:
 		draw_arc(Vector2.ZERO, star_radius + 10.0, 3.25, 5.75, 22, Color(0.38, 0.56, 0.67, 0.54), 1.0, true)
+	if data.suspicious or data.darkened:
+		draw_arc(Vector2.ZERO, star_radius + 14.0, 0.4, 5.7, 36, Color(0.72, 0.36, 0.72, 0.52), 1.0, true)
 
 	if data.is_home:
 		var ring_radius := 18.0 + sin(pulse_phase * 1.7) * 1.4

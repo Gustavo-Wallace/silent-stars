@@ -13,6 +13,12 @@ extends Resource
 @export_range(0, 100) var data_potential: int = 0
 @export_range(0, 3) var extraction_level: int = 0
 @export var depleted: bool = false
+@export var built_structures: PackedStringArray = []
+@export var infrastructure_level: int = 0
+@export var local_signature: int = 0
+@export var suspicious: bool = false
+@export var darkened: bool = false
+@export var attention_mark: int = 0
 @export var is_home: bool = false
 @export var discovered: bool = true
 @export var observed: bool = false
@@ -46,6 +52,20 @@ func observed_threat_text() -> String:
 
 func extraction_text() -> String:
 	return "DEPLETED" if depleted else "%d / 3" % extraction_level
+
+func has_infrastructure() -> bool:
+	return not built_structures.is_empty()
+
+func local_signature_text() -> String:
+	if local_signature == 0: return "DORMANT"
+	if local_signature <= 2: return "QUIET"
+	if local_signature <= 5: return "NOTICEABLE"
+	return "LOUD"
+
+func anomaly_text() -> String:
+	if darkened: return "DARKENED"
+	if suspicious: return "SUSPICIOUS"
+	return "NONE"
 
 
 func system_description() -> String:

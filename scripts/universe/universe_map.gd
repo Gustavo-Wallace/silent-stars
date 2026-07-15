@@ -293,6 +293,9 @@ func _system_by_id(system_id: int) -> StarSystemData:
 func current_system() -> StarSystemData:
 	return _system_by_id(current_system_id)
 
+func selected_system() -> StarSystemData:
+	return selected_data
+
 
 func trigger_signature_pulse(intensity: float) -> void:
 	trigger_world_pulse(Vector2.ZERO, intensity)

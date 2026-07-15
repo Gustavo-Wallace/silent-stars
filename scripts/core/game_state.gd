@@ -8,6 +8,7 @@ signal signature_increased(intensity: float)
 signal resources_changed(energy: int, matter: int, data: int)
 signal travel_status_changed(current_system_id: int, is_traveling: bool)
 signal probes_changed(count: int)
+signal void_changed(attention: int, pressure: String)
 
 var current_cycle: int = 1
 var cosmic_signature: int = 0
@@ -30,6 +31,8 @@ var probes_available: int = 2
 var probes_launched_total: int = 0
 var probes_lost_total: int = 0
 var probe_signature_modifier: float = 1.0
+var void_attention: int = 0
+var void_pressure := "DORMANT"
 
 func launch_probe() -> bool:
 	if probes_available <= 0: add_log_message("No probes available."); return false
@@ -52,11 +55,29 @@ func publish_initial_state() -> void:
 	state_changed.emit(current_cycle, cosmic_signature, contact_state)
 	resources_changed.emit(energy, matter, data)
 	probes_changed.emit(probes_available)
+	void_changed.emit(void_attention, void_pressure)
 	log_message_added.emit("The void remains quiet.")
 
 
 func add_log_message(message: String) -> void:
 	log_message_added.emit(message)
+
+func add_void_attention(amount: int) -> void:
+	var previous := void_pressure
+	void_attention = maxi(0, void_attention + amount)
+	if void_attention < 10: void_pressure = "DORMANT"
+	elif void_attention < 25: void_pressure = "LISTENING"
+	elif void_attention < 50: void_pressure = "SEARCHING"
+	elif void_attention < 80: void_pressure = "HUNTING"
+	else: void_pressure = "CONVERGING"
+	void_changed.emit(void_attention, void_pressure)
+	if previous != void_pressure: add_log_message("VOID: %s." % void_pressure)
+
+func enter_blackout() -> void:
+	if energy < 2 or data < 2: add_log_message("Insufficient resources for blackout."); return
+	energy -= 2; data -= 2; current_cycle += 1
+	resources_changed.emit(energy,matter,data); reduce_signature(2); add_void_attention(-3)
+	add_log_message("All outgoing systems dimmed. Civilization became rumor.")
 
 func apply_choice(effects: Dictionary, message: String) -> void:
 	energy += int(effects.get("energy", 0))
@@ -88,6 +109,7 @@ func complete_active_scan(system: StarSystemData) -> void:
 	_advance_action(_modified_signature(8, scan_signature_modifier), 1.0)
 	log_message_added.emit("Active scan resolved mineral traces in %s." % system.system_name)
 	log_message_added.emit("Signal bloom expanded from the home system.")
+	if cosmic_signature >= 10 or system.threat_level >= 60: add_void_attention(1)
 
 
 func complete_analysis(system: StarSystemData, result: Dictionary) -> void:
@@ -132,6 +154,7 @@ func begin_travel(destination: StarSystemData, distance: float) -> bool:
 	travel_status_changed.emit(current_system_id, true)
 	log_message_added.emit("Course plotted toward %s." % destination.system_name)
 	log_message_added.emit("The vessel crossed a silent interval.")
+	if distance >= 800.0: add_void_attention(1 if distance < 1600.0 else 2)
 	return true
 
 

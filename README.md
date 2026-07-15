@@ -43,6 +43,14 @@ O inventário começa com **PROBES 02**. Selecione um sistema observado fora da 
 
 Chegadas podem abrir uma telemetria com três respostas. Cada escolha indica seus ganhos, custos ou assinatura: arquivar dados, apagar rastros, coletar recursos ou emitir uma resposta. Os efeitos são aplicados imediatamente e registrados no log.
 
+## Infraestrutura
+
+No sistema atual e escaneado, use **BUILD OUTPOST** para iniciar infraestrutura orbital. Construções consomem recursos e criam assinatura local: `DORMANT`, `QUIET`, `NOTICEABLE` ou `LOUD`.
+
+## Void pressure
+
+Ações ativas e viagens longas atraem a atenção invisível do vazio. Use **Enter Blackout** (`2 ENERGY`, `2 DATA`) para reduzir assinatura e atenção quando a pressão começar a subir.
+
 ## Direção visual
 
 Um observatório minimalista de fundo quase preto, estrelas suaves, rotas discretas e pulsos cianos que partem do sistema natal.

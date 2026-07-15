@@ -32,6 +32,14 @@ Sondas partem da localização atual sem deslocar a nave principal. Elas consome
 
 Eventos de chegada agora apresentam respostas alternativas com custos e consequências sobre recursos, assinatura cósmica e estado de contato. A estrutura de dados permite ampliar o catálogo para eventos de sonda, scan, assinatura alta e cadeias narrativas futuras.
 
+## Etapa 8 — Infraestrutura orbital (implementada)
+
+Sistemas escaneados visitados podem receber infraestrutura orbital. Estruturas consomem recursos, adicionam assinatura local e tornam cada sistema uma presença mais importante no mapa.
+
+## Etapa 9 — Ameaça invisível (implementada)
+
+Void attention acompanha ações agressivas e viagens longas, convertendo-se em pressão DORMANT, LISTENING, SEARCHING, HUNTING e CONVERGING. Blackout oferece uma resposta ativa com custo de recursos.
+
 ## Próximos passos
 
 1. Eventos com escolhas.

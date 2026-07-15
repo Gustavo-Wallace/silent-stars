@@ -112,6 +112,28 @@ theme_override_colors/font_color = Color(0.68, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "RESEARCH"
 
+[node name="InfrastructureBuild" type="Button" parent="."]
+layout_mode = 0
+offset_left = 36.0
+offset_top = 425.0
+offset_right = 250.0
+offset_bottom = 459.0
+theme_override_colors/font_color = Color(0.7, 0.94, 0.78, 1)
+text = "BUILD OUTPOST"
+
+[node name="Blackout" type="Button" parent="."]
+layout_mode = 0
+offset_left = 36.0
+offset_top = 466.0
+offset_right = 250.0
+offset_bottom = 500.0
+theme_override_colors/font_color = Color(0.62, 0.76, 0.94, 1)
+text = "ENTER BLACKOUT  -2E -2D"
+
+[connection signal="pressed" from="Blackout" to="." method="_on_blackout_pressed"]
+
+[connection signal="pressed" from="InfrastructureBuild" to="." method="_on_infrastructure_pressed"]
+
 [node name="DetailsPanel" type="ColorRect" parent="."]
 layout_mode = 0
 mouse_filter = 2

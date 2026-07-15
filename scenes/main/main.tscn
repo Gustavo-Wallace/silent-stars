@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://crf8kb82h7ye1" path="res://scripts/core/game_state.gd" id="5_state"]
 [ext_resource type="Script" uid="uid://ck2u24mqthomc" path="res://scripts/core/event_manager.gd" id="6_events"]
 [ext_resource type="Script" uid="uid://dbvtjpjpodknm" path="res://scripts/core/technology_manager.gd" id="7_tech"]
+[ext_resource type="Script" uid="uid://2tvnge7k0e3f" path="res://scripts/core/infrastructure_manager.gd" id="8_infra"]
 
 [node name="Main" type="Node2D" unique_id=1802537095]
 script = ExtResource("1_main")
@@ -21,6 +22,9 @@ script = ExtResource("6_events")
 
 [node name="TechnologyManager" type="Node" parent="." unique_id=637407153]
 script = ExtResource("7_tech")
+
+[node name="InfrastructureManager" type="Node" parent="." unique_id=1695209019]
+script = ExtResource("8_infra")
 
 [node name="CameraController" type="Camera2D" parent="." unique_id=142645263]
 position_smoothing_enabled = true

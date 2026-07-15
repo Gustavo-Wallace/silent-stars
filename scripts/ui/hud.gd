@@ -10,6 +10,8 @@ signal travel_requested
 signal research_requested(technology_id: String)
 signal probe_requested
 signal event_choice_requested(index: int)
+signal infrastructure_requested(id: String)
+signal blackout_requested
 
 const MAX_LOG_MESSAGES := 5
 
@@ -51,6 +53,19 @@ var research_energy: int = 0
 var research_matter: int = 0
 var research_data: int = 0
 var probes_count: int = 0
+
+func update_void(_attention: int, pressure: String) -> void:
+	location_readout.text = location_readout.text.split("\n")[0] + "\nVOID PRESSURE     " + pressure
+
+func _on_blackout_pressed() -> void:
+	blackout_requested.emit()
+var infrastructure: Array[InfrastructureData] = []
+
+func set_infrastructure(items: Array[InfrastructureData]) -> void:
+	infrastructure = items
+
+func _on_infrastructure_pressed() -> void:
+	if not infrastructure.is_empty(): infrastructure_requested.emit(infrastructure[0].structure_id)
 var selected_technology_index: int = -1
 
 
@@ -165,13 +180,14 @@ func add_log_message(message: String) -> void:
 
 
 func _details_for(data: StarSystemData) -> String:
+	var infrastructure_text := "NONE" if not data.has_infrastructure() else ", ".join(data.built_structures)
 	if data.is_home:
-		return "%s\n\nTYPE       %s\nENERGY     %d\nMATTER     %d\nDATA       %d\nTHREAT     %d%%\nEXTRACTION HOME\nSTATUS     HOME\n\n%s" % [data.system_name, data.system_type, data.energy_potential, data.matter_potential, data.data_potential, data.threat_level, data.system_description()]
+		return "%s\n\nTYPE       %s\nINFRA      %s\nLOCAL SIG  %s\nSTATUS     HOME\n\n%s" % [data.system_name, data.system_type, infrastructure_text, data.local_signature_text(), data.system_description()]
 	if not data.observed:
 		return "%s\n\nTYPE       UNKNOWN\nENERGY     UNKNOWN\nMATTER     UNKNOWN\nDATA       UNKNOWN\nTHREAT     UNKNOWN\nEXTRACTION UNKNOWN\nSTATUS     UNOBSERVED\n\nA distant point without a stable profile." % data.display_name()
 	if not data.scanned:
 		return "%s\n\nTYPE       %s\nENERGY     %s ESTIMATE\nMATTER     %s ESTIMATE\nDATA       %s ESTIMATE\nTHREAT     %s\nEXTRACTION %s\nSTATUS     OBSERVED\n\n%s" % [data.system_name, data.system_type, _resource_band(data.energy_potential), _resource_band(data.matter_potential), _resource_band(data.data_potential), data.observed_threat_text(), data.extraction_text(), data.system_description()]
-	return "%s\n\nTYPE       %s\nENERGY     %d\nMATTER     %d\nDATA       %d\nTHREAT     %d%%\nEXTRACTION %s\nSTATUS     SCANNED\n\n%s" % [data.system_name, data.system_type, data.energy_potential, data.matter_potential, data.data_potential, data.threat_level, data.extraction_text(), data.system_description()]
+	return "%s\n\nTYPE       %s\nINFRA      %s\nLOCAL SIG  %s\nEXTRACTION %s\nSTATUS     SCANNED\n\n%s" % [data.system_name, data.system_type, infrastructure_text, data.local_signature_text(), data.extraction_text(), data.system_description()]
 
 
 func _on_passive_observe_pressed() -> void:
