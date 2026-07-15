@@ -12,6 +12,8 @@ signal probe_requested
 signal event_choice_requested(index: int)
 signal infrastructure_requested(id: String)
 signal blackout_requested
+signal fabricate_probe_requested
+signal expand_probe_bay_requested
 
 const MAX_LOG_MESSAGES := 5
 
@@ -53,6 +55,7 @@ var research_energy: int = 0
 var research_matter: int = 0
 var research_data: int = 0
 var probes_count: int = 0
+var probes_capacity: int = 4
 
 func update_void(_attention: int, pressure: String) -> void:
 	location_readout.text = location_readout.text.split("\n")[0] + "\nVOID PRESSURE     " + pressure
@@ -133,12 +136,16 @@ func update_resources(energy: int, matter: int, data: int) -> void:
 	research_energy = energy
 	research_matter = matter
 	research_data = data
-	resource_readout.text = "ENERGY  %03d\nMATTER  %03d\nDATA    %03d\nPROBES  %02d" % [energy, matter, data, probes_count]
-
-func update_probes(count: int) -> void:
-	probes_count = count
-	resource_readout.text = "ENERGY  %03d\nMATTER  %03d\nDATA    %03d\nPROBES  %02d" % [research_energy, research_matter, research_data, probes_count]
+	resource_readout.text = "ENERGY  %03d\nMATTER  %03d\nDATA    %03d\nPROBES  %02d/%02d" % [energy, matter, data, probes_count, probes_capacity]
 	_refresh_research()
+
+func update_probes(count: int, capacity: int) -> void:
+	probes_count = count
+	probes_capacity = capacity
+	resource_readout.text = "ENERGY  %03d\nMATTER  %03d\nDATA    %03d\nPROBES  %02d/%02d" % [research_energy, research_matter, research_data, probes_count, probes_capacity]
+
+func _on_fabricate_pressed() -> void: fabricate_probe_requested.emit()
+func _on_expand_bay_pressed() -> void: expand_probe_bay_requested.emit()
 
 
 func set_technologies(next_technologies: Array[TechnologyData]) -> void:

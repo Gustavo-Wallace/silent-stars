@@ -32,6 +32,8 @@ func _ready() -> void:
 	hud.research_requested.connect(technology_manager.research)
 	hud.infrastructure_requested.connect(_on_infrastructure_requested)
 	hud.blackout_requested.connect(game_state.enter_blackout)
+	hud.fabricate_probe_requested.connect(_on_fabricate_probe)
+	hud.expand_probe_bay_requested.connect(game_state.expand_probe_bay)
 	game_state.state_changed.connect(hud.update_game_state)
 	game_state.resources_changed.connect(hud.update_resources)
 	game_state.probes_changed.connect(hud.update_probes)
@@ -80,6 +82,11 @@ func _on_infrastructure_requested(id: String) -> void:
 	if system != null:
 		infrastructure_manager.build(id, system, game_state.current_system_id)
 		hud.display_system(system)
+
+func _on_fabricate_probe() -> void:
+	var system := universe_map.current_system()
+	var has_dock := system != null and system.built_structures.has("probe_dock")
+	game_state.fabricate_probe(has_dock)
 
 func _on_probe_requested(destination: StarSystemData, distance: float) -> void:
 	if game_state.launch_probe():

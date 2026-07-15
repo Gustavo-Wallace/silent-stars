@@ -130,7 +130,27 @@ offset_bottom = 500.0
 theme_override_colors/font_color = Color(0.62, 0.76, 0.94, 1)
 text = "ENTER BLACKOUT  -2E -2D"
 
+[node name="FabricateProbe" type="Button" parent="."]
+layout_mode = 0
+offset_left = 36.0
+offset_top = 507.0
+offset_right = 250.0
+offset_bottom = 541.0
+theme_override_colors/font_color = Color(0.7, 1, 0.76, 1)
+text = "FABRICATE PROBE"
+
+[node name="ExpandProbeBay" type="Button" parent="."]
+layout_mode = 0
+offset_left = 36.0
+offset_top = 548.0
+offset_right = 250.0
+offset_bottom = 582.0
+theme_override_colors/font_color = Color(0.6, 0.84, 0.96, 1)
+text = "EXPAND PROBE BAY"
+
 [connection signal="pressed" from="Blackout" to="." method="_on_blackout_pressed"]
+[connection signal="pressed" from="FabricateProbe" to="." method="_on_fabricate_pressed"]
+[connection signal="pressed" from="ExpandProbeBay" to="." method="_on_expand_bay_pressed"]
 
 [connection signal="pressed" from="InfrastructureBuild" to="." method="_on_infrastructure_pressed"]
 

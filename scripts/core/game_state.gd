@@ -7,7 +7,7 @@ signal log_message_added(message: String)
 signal signature_increased(intensity: float)
 signal resources_changed(energy: int, matter: int, data: int)
 signal travel_status_changed(current_system_id: int, is_traveling: bool)
-signal probes_changed(count: int)
+signal probes_changed(count: int, capacity: int)
 signal void_changed(attention: int, pressure: String)
 
 var current_cycle: int = 1
@@ -30,6 +30,9 @@ var event_risk_modifier: float = 1.0
 var probes_available: int = 2
 var probes_launched_total: int = 0
 var probes_lost_total: int = 0
+var probes_capacity: int = 4
+var probes_built_total: int = 0
+var probe_bay_upgrades: int = 0
 var probe_signature_modifier: float = 1.0
 var void_attention: int = 0
 var void_pressure := "DORMANT"
@@ -38,10 +41,28 @@ func launch_probe() -> bool:
 	if probes_available <= 0: add_log_message("No probes available."); return false
 	if energy < 1: add_log_message("Insufficient energy for probe launch."); return false
 	probes_available -= 1; probes_launched_total += 1; energy -= 1
-	probes_changed.emit(probes_available)
+	probes_changed.emit(probes_available, probes_capacity)
 	resources_changed.emit(energy, matter, data)
 	_advance_action(_modified_signature(1, probe_signature_modifier), 0.22)
 	return true
+
+func fabricate_probe(has_dock: bool) -> void:
+	if probes_available >= probes_capacity: add_log_message("Probe capacity reached."); return
+	var cost := ProbeFabricationService.fabricate_cost(has_dock)
+	if energy < int(cost["energy"]) or matter < int(cost["matter"]) or data < int(cost["data"]): add_log_message("Probe construction requires matter."); return
+	energy -= int(cost["energy"]); matter -= int(cost["matter"]); data -= int(cost["data"])
+	probes_available += 1; probes_built_total += 1; current_cycle += 1
+	resources_changed.emit(energy,matter,data); probes_changed.emit(probes_available, probes_capacity)
+	_advance_signature_only(1, 0.18)
+	if void_attention >= 10: add_void_attention(1)
+	add_log_message("Probe frame assembled from cold alloys.")
+
+func expand_probe_bay() -> void:
+	var cost := ProbeFabricationService.bay_cost(probe_bay_upgrades)
+	if energy < int(cost["energy"]) or matter < int(cost["matter"]) or data < int(cost["data"]): add_log_message("Insufficient resources for probe bay."); return
+	energy -= int(cost["energy"]); matter -= int(cost["matter"]); data -= int(cost["data"]); probes_capacity += 2; probe_bay_upgrades += 1; current_cycle += 1
+	resources_changed.emit(energy,matter,data); probes_changed.emit(probes_available, probes_capacity); _advance_signature_only(1,0.2)
+	add_log_message("Probe Bay expanded. More machines can now wait in silence.")
 
 func apply_probe_result(system: StarSystemData, result: String, data_gain: int, matter_gain: int, signature_gain: int, watched: bool) -> void:
 	data += data_gain; matter += matter_gain
@@ -54,7 +75,7 @@ func apply_probe_result(system: StarSystemData, result: String, data_gain: int, 
 func publish_initial_state() -> void:
 	state_changed.emit(current_cycle, cosmic_signature, contact_state)
 	resources_changed.emit(energy, matter, data)
-	probes_changed.emit(probes_available)
+	probes_changed.emit(probes_available, probes_capacity)
 	void_changed.emit(void_attention, void_pressure)
 	log_message_added.emit("The void remains quiet.")
 

@@ -40,6 +40,10 @@ Sistemas escaneados visitados podem receber infraestrutura orbital. Estruturas c
 
 Void attention acompanha ações agressivas e viagens longas, convertendo-se em pressão DORMANT, LISTENING, SEARCHING, HUNTING e CONVERGING. Blackout oferece uma resposta ativa com custo de recursos.
 
+## Etapa 10 — Fabricação de sondas (implementada)
+
+A Probe Bay agora permite fabricar sondas e expandir a capacidade de armazenamento. A economia conecta matéria, energia, dados, infraestrutura local e exploração remota.
+
 ## Próximos passos
 
 1. Eventos com escolhas.

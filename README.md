@@ -51,6 +51,10 @@ No sistema atual e escaneado, use **BUILD OUTPOST** para iniciar infraestrutura 
 
 Ações ativas e viagens longas atraem a atenção invisível do vazio. Use **Enter Blackout** (`2 ENERGY`, `2 DATA`) para reduzir assinatura e atenção quando a pressão começar a subir.
 
+## Probe Bay
+
+Sondas agora aparecem como `PROBES atual/capacidade`. Use **Fabricate Probe** para criar uma unidade por ENERGY, MATTER e DATA; **Expand Probe Bay** aumenta a capacidade em dois, com custo crescente. Um Probe Dock reduz o custo de fabricação.
+
 ## Direção visual
 
 Um observatório minimalista de fundo quase preto, estrelas suaves, rotas discretas e pulsos cianos que partem do sistema natal.
