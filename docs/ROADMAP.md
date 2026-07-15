@@ -16,11 +16,15 @@ Sistemas agora podem ser observados passivamente ou escaneados ativamente. A obs
 
 A civilização agora acompanha energia, matéria e dados. Sistemas possuem perfis de recurso próprios, obtidos por análise passiva ou por extração ativa. Extrair gera recursos e cicatrizes orbitais, aumenta a assinatura cósmica e eventualmente esgota o sistema.
 
+## Etapa 4 — Viagem e chegadas (implementada)
+
+Uma nave visível agora viaja entre sistemas observados, consumindo energia e deixando uma assinatura baseada na distância. A extração exige presença local. Cada chegada dispara um evento atmosférico automático, apresentado em uma telemetria discreta e registrado no log.
+
 ## Próximos passos
 
-1. Sondas e alcance de exploração.
-2. Tecnologia inicial.
-3. Eventos narrativos e ecos do vazio.
-4. Ameaça invisível e detecção de longo prazo.
-5. Colonização silenciosa.
-6. Vitória / derrota experimental.
+1. Tecnologias iniciais.
+2. Sondas remotas.
+3. Eventos com escolhas.
+4. Infraestrutura orbital.
+5. Ameaça invisível progressiva.
+6. Condições de vitória / derrota.

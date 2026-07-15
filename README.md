@@ -11,6 +11,7 @@ Explore um mapa estelar silencioso, observe sistemas e considere o custo de se t
 - Clique em uma estrela para consultar sua telemetria.
 - Use **Passive Observe** para revelar tipo, recursos estimados e atividade sem aumentar a assinatura cósmica.
 - Use **Active Scan** para revelar leituras completas; cada escaneamento avança o ciclo e amplia sua assinatura cósmica.
+- Use **Travel** em um sistema observado para deslocar a nave. Cada viagem custa 2 ENERGY, avança o ciclo e deixa uma assinatura proporcional à distância.
 
 ## Assinatura cósmica
 
@@ -21,6 +22,12 @@ A assinatura começa em **LOW**. Escaneamentos ativos acumulam sinal e avançam 
 A civilização começa com **ENERGY 025**, **MATTER 010** e **DATA 000**. Sistemas observados permitem **Analyze Data**, que converte leituras em DATA com uma emissão pequena. Sistemas escaneados permitem **Begin Extraction**, que gera ENERGY e MATTER, mas emite um sinal maior.
 
 Cada sistema suporta três extrações. Ao alcançar `3 / 3`, ele fica **Depleted**: sua luz enfraquece, cicatrizes orbitais permanecem visíveis e nenhuma extração adicional é possível.
+
+Extração exige presença local: observe, escaneie, viaje até o sistema e então inicie a coleta.
+
+## Nave e eventos de chegada
+
+A nave ciano parte de Solace e deixa uma rota curta ao viajar. Chegadas geram um evento automático — de sinais fracos e destroços úteis a ecos de sensores e sombras que escutam. Os estados de contato atuais são **SILENT**, **UNEASY** e **WATCHED**.
 
 ## Direção visual
 

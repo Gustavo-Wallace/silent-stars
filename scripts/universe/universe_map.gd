@@ -8,6 +8,9 @@ signal passive_observation_completed(data: StarSystemData)
 signal active_scan_completed(data: StarSystemData)
 signal analysis_completed(data: StarSystemData, result: Dictionary)
 signal extraction_completed(data: StarSystemData, result: Dictionary)
+signal travel_requested(destination: StarSystemData, distance: float)
+signal travel_arrived(destination: StarSystemData)
+signal action_denied(message: String)
 
 const STAR_SYSTEM_SCENE := preload("res://scenes/universe/star_system_node.tscn")
 const RESOURCE_SERVICE := preload("res://scripts/universe/resource_service.gd")
@@ -22,6 +25,10 @@ var rng := RandomNumberGenerator.new()
 var selected_data: StarSystemData
 var selected_node: StarSystemNode
 var event_pulses: Array[Dictionary] = []
+var current_system_id: int = 0
+
+@onready var player_ship: PlayerShip = $PlayerShip
+@onready var travel_route: Line2D = $TravelRoute
 
 
 func _ready() -> void:
@@ -29,6 +36,9 @@ func _ready() -> void:
 	_generate_background_stars()
 	_generate_systems()
 	_create_system_nodes()
+	_set_current_system(0)
+	player_ship.setup_initial(systems[0].position, 0)
+	player_ship.arrived.connect(_on_ship_arrived)
 	queue_redraw()
 
 
@@ -200,12 +210,67 @@ func analyze_selected_system() -> void:
 func extract_selected_system() -> void:
 	if selected_data == null or selected_data.is_home or not selected_data.scanned or selected_data.depleted:
 		return
+	if selected_data.id != current_system_id:
+		action_denied.emit("Local presence required for extraction.")
+		return
 	var result: Dictionary = RESOURCE_SERVICE.extract(selected_data)
 	selected_node.trigger_extraction_feedback()
 	trigger_world_pulse(selected_data.position, 0.72)
 	_refresh_selected_node()
 	system_updated.emit(selected_data)
 	extraction_completed.emit(selected_data, result)
+
+
+func begin_travel_to_selected() -> void:
+	if selected_data == null or player_ship.is_traveling:
+		return
+	if selected_data.id == current_system_id:
+		action_denied.emit("The vessel is already in local orbit.")
+		return
+	if not selected_data.observed:
+		action_denied.emit("Observation data required before plotting a course.")
+		return
+	var origin := _system_by_id(current_system_id)
+	if origin == null:
+		return
+	travel_requested.emit(selected_data, origin.position.distance_to(selected_data.position))
+
+
+func start_ship_travel(destination: StarSystemData) -> void:
+	var origin := _system_by_id(current_system_id)
+	if origin == null:
+		return
+	travel_route.points = PackedVector2Array([origin.position, destination.position])
+	trigger_world_pulse(origin.position, 0.32)
+	player_ship.travel_to(destination.position, destination.id)
+
+
+func _on_ship_arrived(system_id: int) -> void:
+	travel_route.clear_points()
+	_set_current_system(system_id)
+	var destination := _system_by_id(system_id)
+	if destination != null:
+		trigger_world_pulse(destination.position, 0.52)
+		travel_arrived.emit(destination)
+
+
+func _set_current_system(system_id: int) -> void:
+	current_system_id = system_id
+	for child in $Systems.get_children():
+		var system_node: StarSystemNode = child as StarSystemNode
+		if system_node != null:
+			system_node.set_current(system_node.data.id == current_system_id)
+
+
+func _system_by_id(system_id: int) -> StarSystemData:
+	for system in systems:
+		if system.id == system_id:
+			return system
+	return null
+
+
+func current_system() -> StarSystemData:
+	return _system_by_id(current_system_id)
 
 
 func trigger_signature_pulse(intensity: float) -> void:

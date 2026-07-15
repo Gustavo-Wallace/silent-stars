@@ -6,6 +6,7 @@ signal passive_observe_requested
 signal active_scan_requested
 signal analyze_requested
 signal extraction_requested
+signal travel_requested
 
 const MAX_LOG_MESSAGES := 5
 
@@ -13,16 +14,25 @@ const MAX_LOG_MESSAGES := 5
 @onready var signature_value: Label = $SignatureMeter/Value
 @onready var signature_fill: ColorRect = $SignatureMeter/Track/Fill
 @onready var resource_readout: Label = $ResourceReadout
+@onready var location_readout: Label = $LocationReadout
 @onready var details: Label = $DetailsPanel/Details
 @onready var action_hint: Label = $DetailsPanel/ActionHint
 @onready var passive_button: Button = $DetailsPanel/PassiveObserve
 @onready var scan_button: Button = $DetailsPanel/ActiveScan
 @onready var analyze_button: Button = $DetailsPanel/AnalyzeData
 @onready var extraction_button: Button = $DetailsPanel/BeginExtraction
+@onready var travel_button: Button = $DetailsPanel/Travel
 @onready var log_entries: Label = $LogPanel/Entries
+@onready var event_panel: ColorRect = $ArrivalEvent
+@onready var event_title: Label = $ArrivalEvent/Title
+@onready var event_description: Label = $ArrivalEvent/Description
+@onready var event_result: Label = $ArrivalEvent/Result
+@onready var event_continue: Button = $ArrivalEvent/Continue
 
 var selected_system: StarSystemData
 var log_messages: Array[String] = []
+var current_system_id: int = 0
+var is_traveling := false
 
 
 func _ready() -> void:
@@ -30,10 +40,14 @@ func _ready() -> void:
 	scan_button.pressed.connect(_on_active_scan_pressed)
 	analyze_button.pressed.connect(_on_analyze_pressed)
 	extraction_button.pressed.connect(_on_extraction_pressed)
+	travel_button.pressed.connect(_on_travel_pressed)
+	event_continue.pressed.connect(_on_event_continue_pressed)
 	passive_button.disabled = true
 	scan_button.disabled = true
 	analyze_button.disabled = true
 	extraction_button.disabled = true
+	travel_button.disabled = true
+	event_panel.visible = false
 
 
 func display_system(data: StarSystemData) -> void:
@@ -43,10 +57,17 @@ func display_system(data: StarSystemData) -> void:
 	scan_button.disabled = data.is_home or data.scanned
 	analyze_button.disabled = data.is_home or not data.observed
 	extraction_button.disabled = data.is_home or not data.scanned or data.depleted
+	travel_button.disabled = is_traveling or data.id == current_system_id or not data.observed
+	if data.id != current_system_id:
+		extraction_button.disabled = true
 	if data.is_home:
 		action_hint.text = "HOME SYSTEM — COMPLETE TELEMETRY AVAILABLE"
 	elif data.depleted:
 		action_hint.text = "RESOURCE PROFILE COLLAPSED — EXTRACTION UNAVAILABLE"
+	elif data.scanned and data.id != current_system_id:
+		action_hint.text = "LOCAL PRESENCE REQUIRED FOR EXTRACTION"
+	elif is_traveling:
+		action_hint.text = "VESSEL IN TRANSIT — LOCAL ACTIONS PAUSED"
 	elif data.scanned:
 		action_hint.text = "ACTIVE SCAN ARCHIVED"
 	elif data.observed:
@@ -65,6 +86,21 @@ func update_game_state(cycle: int, signature: int, contact: String) -> void:
 
 func update_resources(energy: int, matter: int, data: int) -> void:
 	resource_readout.text = "ENERGY  %03d\nMATTER  %03d\nDATA    %03d" % [energy, matter, data]
+
+
+func update_location(system_name: String, system_id: int, traveling: bool) -> void:
+	current_system_id = system_id
+	is_traveling = traveling
+	location_readout.text = "CURRENT LOCATION  %s\nTRAVEL STATUS     %s" % [system_name, "IN TRANSIT" if traveling else "DOCKED"]
+	if selected_system != null:
+		display_system(selected_system)
+
+
+func show_arrival_event(event: ArrivalEventData) -> void:
+	event_title.text = event.title.to_upper()
+	event_description.text = event.description
+	event_result.text = event.result
+	event_panel.visible = true
 
 
 func add_log_message(message: String) -> void:
@@ -98,6 +134,14 @@ func _on_analyze_pressed() -> void:
 
 func _on_extraction_pressed() -> void:
 	extraction_requested.emit()
+
+
+func _on_travel_pressed() -> void:
+	travel_requested.emit()
+
+
+func _on_event_continue_pressed() -> void:
+	event_panel.visible = false
 
 
 func _resource_band(value: int) -> String:

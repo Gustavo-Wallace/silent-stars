@@ -10,6 +10,7 @@ var star_radius := 5.0
 var pulse_phase := 0.0
 var is_hovered := false
 var is_selected := false
+var is_current := false
 var feedback_time := 0.0
 var feedback_strength := 0.0
 var feedback_tint := Color("52d8ff")
@@ -31,6 +32,11 @@ func _process(delta: float) -> void:
 
 func set_selected(value: bool) -> void:
 	is_selected = value
+	queue_redraw()
+
+
+func set_current(value: bool) -> void:
+	is_current = value
 	queue_redraw()
 
 
@@ -87,6 +93,9 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, ring_radius, 0.0, TAU, 48, Color(0.38, 0.88, 1.0, 0.56), 1.2, true)
 		draw_line(Vector2(-27, 0), Vector2(-20, 0), Color(0.42, 0.9, 1.0, 0.46), 1.0)
 		draw_line(Vector2(20, 0), Vector2(27, 0), Color(0.42, 0.9, 1.0, 0.46), 1.0)
+	if is_current:
+		var dock_radius := star_radius + 16.0 + sin(pulse_phase * 1.25) * 1.1
+		draw_arc(Vector2.ZERO, dock_radius, 0.15, 6.1, 48, Color(0.5, 0.94, 1.0, 0.68), 1.0, true)
 
 	if is_hovered or is_selected:
 		draw_arc(Vector2.ZERO, star_radius + 8.0, 0.0, TAU, 32, Color(0.83, 0.96, 1.0, 0.85), 1.0, true)
