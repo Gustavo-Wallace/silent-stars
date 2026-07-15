@@ -16,6 +16,12 @@ Explore um mapa estelar silencioso, observe sistemas e considere o custo de se t
 
 A assinatura começa em **LOW**. Escaneamentos ativos acumulam sinal e avançam para **ELEVATED**, **LOUD** e **EXPOSED**. O contato permanece silencioso por enquanto, mas a interface já reage ao risco crescente.
 
+## Recursos e extração
+
+A civilização começa com **ENERGY 025**, **MATTER 010** e **DATA 000**. Sistemas observados permitem **Analyze Data**, que converte leituras em DATA com uma emissão pequena. Sistemas escaneados permitem **Begin Extraction**, que gera ENERGY e MATTER, mas emite um sinal maior.
+
+Cada sistema suporta três extrações. Ao alcançar `3 / 3`, ele fica **Depleted**: sua luz enfraquece, cicatrizes orbitais permanecem visíveis e nenhuma extração adicional é possível.
+
 ## Direção visual
 
 Um observatório minimalista de fundo quase preto, estrelas suaves, rotas discretas e pulsos cianos que partem do sistema natal.

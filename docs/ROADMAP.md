@@ -12,10 +12,15 @@ Esta etapa estabelece um mapa estelar procedural, navegação por câmera, siste
 
 Sistemas agora podem ser observados passivamente ou escaneados ativamente. A observação revela informação parcial sem emitir sinal; o escaneamento revela telemetria completa, avança o ciclo e aumenta a assinatura cósmica. A HUD acompanha ciclo, risco de assinatura, painel de conhecimento progressivo e log narrativo.
 
+## Etapa 3 — Recursos e extração (implementada)
+
+A civilização agora acompanha energia, matéria e dados. Sistemas possuem perfis de recurso próprios, obtidos por análise passiva ou por extração ativa. Extrair gera recursos e cicatrizes orbitais, aumenta a assinatura cósmica e eventualmente esgota o sistema.
+
 ## Próximos passos
 
 1. Sondas e alcance de exploração.
-2. Recursos e mineração.
+2. Tecnologia inicial.
 3. Eventos narrativos e ecos do vazio.
-4. Árvore tecnológica.
-5. Ameaça invisível e detecção de longo prazo.
+4. Ameaça invisível e detecção de longo prazo.
+5. Colonização silenciosa.
+6. Vitória / derrota experimental.

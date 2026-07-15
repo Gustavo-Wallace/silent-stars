@@ -6,8 +6,11 @@ signal system_selected(data: StarSystemData)
 signal system_updated(data: StarSystemData)
 signal passive_observation_completed(data: StarSystemData)
 signal active_scan_completed(data: StarSystemData)
+signal analysis_completed(data: StarSystemData, result: Dictionary)
+signal extraction_completed(data: StarSystemData, result: Dictionary)
 
 const STAR_SYSTEM_SCENE := preload("res://scenes/universe/star_system_node.tscn")
+const RESOURCE_SERVICE := preload("res://scripts/universe/resource_service.gd")
 const MAP_HALF_EXTENT := 2300.0
 const SYSTEM_COUNT := 46
 const MAP_SEED := 17012026
@@ -57,10 +60,10 @@ func _generate_background_stars() -> void:
 
 
 func _generate_systems() -> void:
-	var home := _make_system(0, "Solace", Vector2.ZERO, "Homeworld", 8, 64, true)
+	var home := _make_system(0, "Solace", Vector2.ZERO, "Home System", true)
 	systems.append(home)
 	var names: PackedStringArray = ["Vesper", "Aster", "Nyx", "Lumen", "Erebos", "Caelum", "Oris", "Nadir", "Pale Echo", "Morrow", "Ilyra", "Cinder", "Axiom", "Halcyon"]
-	var types: PackedStringArray = ["Main Sequence", "Red Dwarf", "Blue Giant", "Binary", "White Dwarf", "Anomalous"]
+	var types: PackedStringArray = ["Quiet Star", "Mineral Belt", "Pale Giant", "Dead World", "Signal Ruin", "Red Anomaly", "Dark System"]
 	for i in range(1, SYSTEM_COUNT):
 		var candidate := Vector2.ZERO
 		var valid := false
@@ -72,26 +75,69 @@ func _generate_systems() -> void:
 		if not valid:
 			candidate = Vector2(rng.randf_range(-1800.0, 1800.0), rng.randf_range(-1800.0, 1800.0))
 		var name: String = "%s %s" % [names[rng.randi_range(0, names.size() - 1)], _roman_numeral(rng.randi_range(1, 9))]
-		var threat := rng.randi_range(4, 96)
-		var resources := rng.randi_range(8, 94)
 		var type: String = types[rng.randi_range(0, types.size() - 1)]
-		systems.append(_make_system(i, name, candidate, type, threat, resources, false))
+		systems.append(_make_system(i, name, candidate, type, false))
 
 
-func _make_system(id_value: int, system_name: String, system_position: Vector2, type: String, threat: int, resources: int, home: bool) -> StarSystemData:
+func _make_system(id_value: int, system_name: String, system_position: Vector2, type: String, home: bool) -> StarSystemData:
 	var system := StarSystemData.new()
 	system.id = id_value
 	system.system_name = system_name
 	system.position = system_position
 	system.system_type = type
-	system.threat_level = threat
-	system.resource_potential = resources
 	system.is_home = home
 	system.discovered = true
 	system.observed = home
 	system.scanned = home
 	system.callsign = "SECTOR %02d" % id_value
+	_apply_resource_profile(system)
 	return system
+
+
+func _apply_resource_profile(system: StarSystemData) -> void:
+	if system.is_home:
+		system.energy_potential = 64
+		system.matter_potential = 52
+		system.data_potential = 48
+		system.threat_level = 8
+	else:
+		match system.system_type:
+			"Quiet Star":
+				system.energy_potential = rng.randi_range(55, 90)
+				system.matter_potential = rng.randi_range(18, 46)
+				system.data_potential = rng.randi_range(10, 34)
+				system.threat_level = rng.randi_range(5, 32)
+			"Mineral Belt":
+				system.energy_potential = rng.randi_range(14, 42)
+				system.matter_potential = rng.randi_range(64, 96)
+				system.data_potential = rng.randi_range(15, 46)
+				system.threat_level = rng.randi_range(10, 42)
+			"Pale Giant":
+				system.energy_potential = rng.randi_range(72, 100)
+				system.matter_potential = rng.randi_range(10, 36)
+				system.data_potential = rng.randi_range(24, 55)
+				system.threat_level = rng.randi_range(42, 78)
+			"Dead World":
+				system.energy_potential = rng.randi_range(9, 30)
+				system.matter_potential = rng.randi_range(32, 68)
+				system.data_potential = rng.randi_range(20, 58)
+				system.threat_level = rng.randi_range(5, 38)
+			"Signal Ruin":
+				system.energy_potential = rng.randi_range(14, 38)
+				system.matter_potential = rng.randi_range(18, 48)
+				system.data_potential = rng.randi_range(68, 100)
+				system.threat_level = rng.randi_range(34, 84)
+			"Red Anomaly":
+				system.energy_potential = rng.randi_range(38, 78)
+				system.matter_potential = rng.randi_range(18, 54)
+				system.data_potential = rng.randi_range(54, 92)
+				system.threat_level = rng.randi_range(62, 100)
+			"Dark System":
+				system.energy_potential = rng.randi_range(8, 42)
+				system.matter_potential = rng.randi_range(30, 72)
+				system.data_potential = rng.randi_range(34, 78)
+				system.threat_level = rng.randi_range(36, 88)
+	system.resource_potential = roundi(float(system.energy_potential + system.matter_potential + system.data_potential) / 3.0)
 
 
 func _is_far_enough(candidate: Vector2) -> bool:
@@ -139,6 +185,27 @@ func scan_selected_system() -> void:
 	_refresh_selected_node()
 	system_updated.emit(selected_data)
 	active_scan_completed.emit(selected_data)
+
+
+func analyze_selected_system() -> void:
+	if selected_data == null or selected_data.is_home or not selected_data.observed:
+		return
+	var result: Dictionary = RESOURCE_SERVICE.analyze(selected_data)
+	selected_node.trigger_analysis_feedback()
+	trigger_world_pulse(selected_data.position, 0.28)
+	system_updated.emit(selected_data)
+	analysis_completed.emit(selected_data, result)
+
+
+func extract_selected_system() -> void:
+	if selected_data == null or selected_data.is_home or not selected_data.scanned or selected_data.depleted:
+		return
+	var result: Dictionary = RESOURCE_SERVICE.extract(selected_data)
+	selected_node.trigger_extraction_feedback()
+	trigger_world_pulse(selected_data.position, 0.72)
+	_refresh_selected_node()
+	system_updated.emit(selected_data)
+	extraction_completed.emit(selected_data, result)
 
 
 func trigger_signature_pulse(intensity: float) -> void:

@@ -12,6 +12,7 @@ var is_hovered := false
 var is_selected := false
 var feedback_time := 0.0
 var feedback_strength := 0.0
+var feedback_tint := Color("52d8ff")
 
 
 func setup(system_data: StarSystemData) -> void:
@@ -42,6 +43,21 @@ func refresh_visual() -> void:
 func trigger_action_feedback(is_active: bool) -> void:
 	feedback_time = 1.15 if is_active else 0.68
 	feedback_strength = 1.0 if is_active else 0.45
+	feedback_tint = Color("52d8ff")
+	queue_redraw()
+
+
+func trigger_analysis_feedback() -> void:
+	feedback_time = 0.82
+	feedback_strength = 0.36
+	feedback_tint = Color("9ad9ff")
+	queue_redraw()
+
+
+func trigger_extraction_feedback() -> void:
+	feedback_time = 1.25
+	feedback_strength = 0.82
+	feedback_tint = Color("d9b26b")
 	queue_redraw()
 
 
@@ -59,6 +75,12 @@ func _draw() -> void:
 	if data.scanned and not data.is_home:
 		draw_arc(Vector2.ZERO, star_radius + 7.0, 0.35, 5.9, 28, Color(0.7, 0.92, 1.0, 0.7), 1.0, true)
 		draw_circle(Vector2(star_radius + 6.0, -star_radius - 2.0), 1.8, Color(0.75, 0.96, 1.0, 0.9))
+	if data.extraction_level > 0 and not data.is_home:
+		for level in data.extraction_level:
+			var orbit_radius := star_radius + 10.0 + level * 3.2
+			draw_arc(Vector2.ZERO, orbit_radius, 0.48 + level * 0.55, 2.45 + level * 0.3, 22, Color(0.78, 0.63, 0.37, 0.58), 0.85, true)
+	if data.depleted:
+		draw_arc(Vector2.ZERO, star_radius + 10.0, 3.25, 5.75, 22, Color(0.38, 0.56, 0.67, 0.54), 1.0, true)
 
 	if data.is_home:
 		var ring_radius := 18.0 + sin(pulse_phase * 1.7) * 1.4
@@ -74,7 +96,7 @@ func _draw() -> void:
 	if feedback_time > 0.0:
 		var feedback_phase := 1.0 - feedback_time / (1.15 if feedback_strength > 0.7 else 0.68)
 		var feedback_radius := star_radius + 10.0 + feedback_phase * (44.0 + feedback_strength * 34.0)
-		draw_arc(Vector2.ZERO, feedback_radius, 0.0, TAU, 48, Color(0.52, 0.9, 1.0, (1.0 - feedback_phase) * 0.72), 1.1, true)
+		draw_arc(Vector2.ZERO, feedback_radius, 0.0, TAU, 48, Color(feedback_tint, (1.0 - feedback_phase) * 0.72), 1.1, true)
 
 	if data.is_home or is_hovered or is_selected:
 		var font := ThemeDB.fallback_font
@@ -100,25 +122,36 @@ func _on_mouse_exited() -> void:
 func _color_for_system() -> Color:
 	if data.is_home:
 		return Color("74d9ff")
+	if data.depleted:
+		return Color("73909e")
 	# Unknown systems deliberately stay neutral so their color does not leak hidden data.
 	if not data.scanned:
 		return Color("c8d9e2")
-	if data.threat_level >= 70:
-		return Color("bc6eaf")
-	if data.resource_potential >= 72:
-		return Color("d8b66c")
-	if data.system_type == "Blue Giant":
-		return Color("a4c7ff")
+	match data.system_type:
+		"Mineral Belt":
+			return Color("d8b66c")
+		"Pale Giant":
+			return Color("b8d5ff")
+		"Dead World":
+			return Color("a2b0b9")
+		"Signal Ruin":
+			return Color("8bd9cf")
+		"Red Anomaly":
+			return Color("c76f9f")
+		"Dark System":
+			return Color("8b7da6")
 	return Color("d7e7ef")
 
 
 func _radius_for_system() -> float:
 	if data.is_home:
 		return 8.0
+	if data.depleted:
+		return 3.5
 	if not data.scanned:
 		return 4.0
-	if data.system_type == "Blue Giant":
+	if data.system_type == "Pale Giant":
 		return 7.0
-	if data.threat_level >= 70 or data.resource_potential >= 72:
+	if data.system_type == "Red Anomaly" or data.system_type == "Mineral Belt":
 		return 6.0
 	return 4.0
