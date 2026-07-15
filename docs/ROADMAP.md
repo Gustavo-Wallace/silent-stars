@@ -20,11 +20,16 @@ A civilização agora acompanha energia, matéria e dados. Sistemas possuem perf
 
 Uma nave visível agora viaja entre sistemas observados, consumindo energia e deixando uma assinatura baseada na distância. A extração exige presença local. Cada chegada dispara um evento atmosférico automático, apresentado em uma telemetria discreta e registrado no log.
 
+## Etapa 5 — Tecnologias iniciais (implementada)
+
+O observatório agora mantém uma lista de pesquisa nas categorias Silence, Exploration, Industry, Analysis e Survival. Oito tecnologias consomem energia, matéria e dados para alterar imediatamente assinatura de scan e viagem, custo de viagem, rendimento de análise/extração, observação passiva e risco de eventos.
+
 ## Próximos passos
 
-1. Tecnologias iniciais.
-2. Sondas remotas.
-3. Eventos com escolhas.
-4. Infraestrutura orbital.
-5. Ameaça invisível progressiva.
-6. Condições de vitória / derrota.
+1. Sondas remotas.
+2. Eventos com escolhas.
+3. Infraestrutura orbital.
+4. Ameaça invisível progressiva.
+5. Árvore tecnológica visual.
+6. Save / load.
+7. Condições experimentais de vitória / derrota.

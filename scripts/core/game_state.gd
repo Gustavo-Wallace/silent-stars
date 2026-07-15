@@ -18,6 +18,13 @@ var current_system_id: int = 0
 var home_system_id: int = 0
 var is_traveling := false
 var forced_contact_state := ""
+var scan_signature_modifier: float = 1.0
+var travel_signature_modifier: float = 1.0
+var travel_energy_modifier: float = 1.0
+var extraction_yield_modifier: float = 1.0
+var analysis_yield_modifier: float = 1.0
+var passive_observe_data_bonus: int = 0
+var event_risk_modifier: float = 1.0
 
 
 func publish_initial_state() -> void:
@@ -35,16 +42,20 @@ func complete_passive_observation(system: StarSystemData) -> void:
 	state_changed.emit(current_cycle, cosmic_signature, contact_state)
 	log_message_added.emit("Passive observation completed. No transmission burst detected.")
 	log_message_added.emit("%s resolves as a %s." % [system.system_name, system.system_type])
+	if passive_observe_data_bonus > 0:
+		data += passive_observe_data_bonus
+		resources_changed.emit(energy, matter, data)
+		log_message_added.emit("Passive array archived +%d DATA." % passive_observe_data_bonus)
 
 
 func complete_active_scan(system: StarSystemData) -> void:
-	_advance_action(8, 1.0)
+	_advance_action(_modified_signature(8, scan_signature_modifier), 1.0)
 	log_message_added.emit("Active scan resolved mineral traces in %s." % system.system_name)
 	log_message_added.emit("Signal bloom expanded from the home system.")
 
 
 func complete_analysis(system: StarSystemData, result: Dictionary) -> void:
-	var data_gain: int = int(result["data"])
+	var data_gain: int = maxi(1, roundi(float(int(result["data"])) * analysis_yield_modifier))
 	data += data_gain
 	resources_changed.emit(energy, matter, data)
 	_advance_action(int(result["signature"]), 0.32)
@@ -55,8 +66,8 @@ func complete_analysis(system: StarSystemData, result: Dictionary) -> void:
 
 
 func complete_extraction(system: StarSystemData, result: Dictionary) -> void:
-	var energy_gain: int = int(result["energy"])
-	var matter_gain: int = int(result["matter"])
+	var energy_gain: int = maxi(1, roundi(float(int(result["energy"])) * extraction_yield_modifier))
+	var matter_gain: int = maxi(1, roundi(float(int(result["matter"])) * extraction_yield_modifier))
 	energy += energy_gain
 	matter += matter_gain
 	resources_changed.emit(energy, matter, data)
@@ -74,13 +85,14 @@ func complete_extraction(system: StarSystemData, result: Dictionary) -> void:
 func begin_travel(destination: StarSystemData, distance: float) -> bool:
 	if is_traveling:
 		return false
-	if energy < TravelService.ENERGY_COST:
+	var travel_cost: int = TravelService.energy_cost(travel_energy_modifier)
+	if energy < travel_cost:
 		log_message_added.emit("Insufficient energy for active operation.")
 		return false
-	energy -= TravelService.ENERGY_COST
+	energy -= travel_cost
 	resources_changed.emit(energy, matter, data)
 	is_traveling = true
-	_advance_action(TravelService.signature_for_distance(distance), 0.42)
+	_advance_action(_modified_signature(TravelService.signature_for_distance(distance), travel_signature_modifier), 0.42)
 	travel_status_changed.emit(current_system_id, true)
 	log_message_added.emit("Course plotted toward %s." % destination.system_name)
 	log_message_added.emit("The vessel crossed a silent interval.")
@@ -107,6 +119,16 @@ func apply_arrival_event(event: ArrivalEventData) -> void:
 		_refresh_contact_state()
 		state_changed.emit(current_cycle, cosmic_signature, contact_state)
 	log_message_added.emit("%s — %s" % [event.title, event.result])
+
+
+func reduce_signature(amount: int) -> void:
+	cosmic_signature = maxi(0, cosmic_signature - amount)
+	_refresh_contact_state()
+	state_changed.emit(current_cycle, cosmic_signature, contact_state)
+
+
+func _modified_signature(base: int, modifier: float) -> int:
+	return maxi(1, roundi(float(base) * modifier))
 
 
 func _advance_action(signature_gain: int, pulse_intensity: float) -> void:

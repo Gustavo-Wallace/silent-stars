@@ -7,6 +7,7 @@ signal active_scan_requested
 signal analyze_requested
 signal extraction_requested
 signal travel_requested
+signal research_requested(technology_id: String)
 
 const MAX_LOG_MESSAGES := 5
 
@@ -28,11 +29,22 @@ const MAX_LOG_MESSAGES := 5
 @onready var event_description: Label = $ArrivalEvent/Description
 @onready var event_result: Label = $ArrivalEvent/Result
 @onready var event_continue: Button = $ArrivalEvent/Continue
+@onready var research_toggle: Button = $ResearchToggle
+@onready var research_panel: ColorRect = $ResearchPanel
+@onready var technology_list: ItemList = $ResearchPanel/TechnologyList
+@onready var research_details: Label = $ResearchPanel/Details
+@onready var research_button: Button = $ResearchPanel/Research
+@onready var research_close: Button = $ResearchPanel/Close
 
 var selected_system: StarSystemData
 var log_messages: Array[String] = []
 var current_system_id: int = 0
 var is_traveling := false
+var technologies: Array[TechnologyData] = []
+var research_energy: int = 0
+var research_matter: int = 0
+var research_data: int = 0
+var selected_technology_index: int = -1
 
 
 func _ready() -> void:
@@ -42,12 +54,17 @@ func _ready() -> void:
 	extraction_button.pressed.connect(_on_extraction_pressed)
 	travel_button.pressed.connect(_on_travel_pressed)
 	event_continue.pressed.connect(_on_event_continue_pressed)
+	research_toggle.pressed.connect(_on_research_toggle_pressed)
+	research_close.pressed.connect(_on_research_close_pressed)
+	research_button.pressed.connect(_on_research_pressed)
+	technology_list.item_selected.connect(_on_technology_selected)
 	passive_button.disabled = true
 	scan_button.disabled = true
 	analyze_button.disabled = true
 	extraction_button.disabled = true
 	travel_button.disabled = true
 	event_panel.visible = false
+	research_panel.visible = false
 
 
 func display_system(data: StarSystemData) -> void:
@@ -85,7 +102,16 @@ func update_game_state(cycle: int, signature: int, contact: String) -> void:
 
 
 func update_resources(energy: int, matter: int, data: int) -> void:
+	research_energy = energy
+	research_matter = matter
+	research_data = data
 	resource_readout.text = "ENERGY  %03d\nMATTER  %03d\nDATA    %03d" % [energy, matter, data]
+	_refresh_research()
+
+
+func set_technologies(next_technologies: Array[TechnologyData]) -> void:
+	technologies = next_technologies
+	_refresh_research()
 
 
 func update_location(system_name: String, system_id: int, traveling: bool) -> void:
@@ -142,6 +168,63 @@ func _on_travel_pressed() -> void:
 
 func _on_event_continue_pressed() -> void:
 	event_panel.visible = false
+
+
+func _on_research_toggle_pressed() -> void:
+	research_panel.visible = true
+	_refresh_research()
+
+
+func _on_research_close_pressed() -> void:
+	research_panel.visible = false
+
+
+func _on_technology_selected(index: int) -> void:
+	selected_technology_index = index
+	_refresh_research()
+
+
+func _on_research_pressed() -> void:
+	if selected_technology_index >= 0 and selected_technology_index < technologies.size():
+		research_requested.emit(technologies[selected_technology_index].technology_id)
+
+
+func _refresh_research() -> void:
+	if technology_list == null:
+		return
+	technology_list.clear()
+	for technology in technologies:
+		technology_list.add_item("[%s] %s — %s" % [_technology_status(technology), technology.technology_name, technology.category])
+	if selected_technology_index < 0 and not technologies.is_empty():
+		selected_technology_index = 0
+	if selected_technology_index >= technologies.size():
+		selected_technology_index = technologies.size() - 1
+	if selected_technology_index < 0:
+		return
+	technology_list.select(selected_technology_index)
+	var technology := technologies[selected_technology_index]
+	var prerequisite_text := "NONE" if technology.prerequisites.is_empty() else ", ".join(technology.prerequisites)
+	research_details.text = "%s\n\nCATEGORY  %s\nSTATUS    %s\nCOST      %d ENERGY · %d MATTER · %d DATA\nREQUIRES  %s\n\n%s" % [technology.technology_name, technology.category, _technology_status(technology), technology.cost_energy, technology.cost_matter, technology.cost_data, prerequisite_text, technology.description]
+	research_button.disabled = technology.researched or not _can_afford(technology) or not _prerequisites_met(technology)
+	research_button.text = "RESEARCH" if not technology.researched else "RESEARCHED"
+
+
+func _technology_status(technology: TechnologyData) -> String:
+	if technology.researched: return "RESEARCHED"
+	if not _prerequisites_met(technology): return "LOCKED"
+	return "AVAILABLE" if _can_afford(technology) else "UNAVAILABLE"
+
+
+func _can_afford(technology: TechnologyData) -> bool:
+	return research_energy >= technology.cost_energy and research_matter >= technology.cost_matter and research_data >= technology.cost_data
+
+
+func _prerequisites_met(technology: TechnologyData) -> bool:
+	for required_id in technology.prerequisites:
+		for candidate in technologies:
+			if candidate.technology_id == required_id and not candidate.researched:
+				return false
+	return true
 
 
 func _resource_band(value: int) -> String:

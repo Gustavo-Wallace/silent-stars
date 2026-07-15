@@ -29,6 +29,12 @@ Extração exige presença local: observe, escaneie, viaje até o sistema e ent�
 
 A nave ciano parte de Solace e deixa uma rota curta ao viajar. Chegadas geram um evento automático — de sinais fracos e destroços úteis a ecos de sensores e sombras que escutam. Os estados de contato atuais são **SILENT**, **UNEASY** e **WATCHED**.
 
+## Pesquisa
+
+Abra **Research** para converter ENERGY, MATTER e DATA em avanços permanentes. As categorias iniciais são **Silence**, **Exploration**, **Industry**, **Analysis** e **Survival**.
+
+As oito tecnologias iniciais reduzem assinatura de scan/viagem, reduzem o custo de viagem, melhoram análise e extração, concedem DATA em observações passivas ou diminuem a incidência de eventos perigosos. Tecnologias com dependências permanecem bloqueadas até a pesquisa anterior ser concluída.
+
 ## Direção visual
 
 Um observatório minimalista de fundo quase preto, estrelas suaves, rotas discretas e pulsos cianos que partem do sistema natal.
