@@ -9,6 +9,9 @@ var star_color := Color(0.75, 0.88, 1.0)
 var star_radius := 5.0
 var pulse_phase := 0.0
 var is_hovered := false
+var is_selected := false
+var feedback_time := 0.0
+var feedback_strength := 0.0
 
 
 func setup(system_data: StarSystemData) -> void:
@@ -21,6 +24,24 @@ func setup(system_data: StarSystemData) -> void:
 
 func _process(delta: float) -> void:
 	pulse_phase = fmod(pulse_phase + delta, TAU)
+	feedback_time = maxf(0.0, feedback_time - delta)
+	queue_redraw()
+
+
+func set_selected(value: bool) -> void:
+	is_selected = value
+	queue_redraw()
+
+
+func refresh_visual() -> void:
+	star_color = _color_for_system()
+	star_radius = _radius_for_system()
+	queue_redraw()
+
+
+func trigger_action_feedback(is_active: bool) -> void:
+	feedback_time = 1.15 if is_active else 0.68
+	feedback_strength = 1.0 if is_active else 0.45
 	queue_redraw()
 
 
@@ -33,6 +54,11 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, star_radius * (1.75 + breathing * 0.12), Color(star_color, 0.16))
 	draw_circle(Vector2.ZERO, star_radius, star_color)
 	draw_circle(Vector2.ZERO, maxf(1.3, star_radius * 0.38), Color(0.92, 0.98, 1.0, 0.96))
+	if data.observed and not data.is_home:
+		draw_arc(Vector2.ZERO, star_radius + 4.5, -0.7, 2.0, 20, Color(star_color, 0.48), 0.8, true)
+	if data.scanned and not data.is_home:
+		draw_arc(Vector2.ZERO, star_radius + 7.0, 0.35, 5.9, 28, Color(0.7, 0.92, 1.0, 0.7), 1.0, true)
+		draw_circle(Vector2(star_radius + 6.0, -star_radius - 2.0), 1.8, Color(0.75, 0.96, 1.0, 0.9))
 
 	if data.is_home:
 		var ring_radius := 18.0 + sin(pulse_phase * 1.7) * 1.4
@@ -40,12 +66,19 @@ func _draw() -> void:
 		draw_line(Vector2(-27, 0), Vector2(-20, 0), Color(0.42, 0.9, 1.0, 0.46), 1.0)
 		draw_line(Vector2(20, 0), Vector2(27, 0), Color(0.42, 0.9, 1.0, 0.46), 1.0)
 
-	if is_hovered:
+	if is_hovered or is_selected:
 		draw_arc(Vector2.ZERO, star_radius + 8.0, 0.0, TAU, 32, Color(0.83, 0.96, 1.0, 0.85), 1.0, true)
+	if is_selected:
+		var selected_radius := star_radius + 12.0 + sin(pulse_phase * 2.1) * 1.4
+		draw_arc(Vector2.ZERO, selected_radius, 0.0, TAU, 48, Color(0.35, 0.82, 1.0, 0.72), 1.15, true)
+	if feedback_time > 0.0:
+		var feedback_phase := 1.0 - feedback_time / (1.15 if feedback_strength > 0.7 else 0.68)
+		var feedback_radius := star_radius + 10.0 + feedback_phase * (44.0 + feedback_strength * 34.0)
+		draw_arc(Vector2.ZERO, feedback_radius, 0.0, TAU, 48, Color(0.52, 0.9, 1.0, (1.0 - feedback_phase) * 0.72), 1.1, true)
 
-	if data.is_home or is_hovered:
+	if data.is_home or is_hovered or is_selected:
 		var font := ThemeDB.fallback_font
-		draw_string(font, Vector2(star_radius + 9.0, -star_radius - 8.0), data.system_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.78, 0.9, 0.96, 0.88))
+		draw_string(font, Vector2(star_radius + 9.0, -star_radius - 8.0), data.display_name(), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.78, 0.9, 0.96, 0.88))
 
 
 func _input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
@@ -67,6 +100,9 @@ func _on_mouse_exited() -> void:
 func _color_for_system() -> Color:
 	if data.is_home:
 		return Color("74d9ff")
+	# Unknown systems deliberately stay neutral so their color does not leak hidden data.
+	if not data.scanned:
+		return Color("c8d9e2")
 	if data.threat_level >= 70:
 		return Color("bc6eaf")
 	if data.resource_potential >= 72:
@@ -79,6 +115,8 @@ func _color_for_system() -> Color:
 func _radius_for_system() -> float:
 	if data.is_home:
 		return 8.0
+	if not data.scanned:
+		return 4.0
 	if data.system_type == "Blue Giant":
 		return 7.0
 	if data.threat_level >= 70 or data.resource_potential >= 72:

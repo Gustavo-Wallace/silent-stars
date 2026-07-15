@@ -10,14 +10,34 @@ extends Resource
 @export_range(0, 100) var resource_potential: int = 0
 @export var is_home: bool = false
 @export var discovered: bool = true
+@export var observed: bool = false
 @export var scanned: bool = false
+@export var callsign: String = "UNRESOLVED"
 
 
 func status_text() -> String:
 	if is_home:
 		return "HOME"
-	return "SCANNED" if scanned else "UNSCANNED"
+	if scanned:
+		return "SCANNED"
+	return "OBSERVED" if observed else "UNOBSERVED"
 
 
-# Future data: probes, mining sites, scan results, event flags, technology effects,
+func display_name() -> String:
+	return system_name if is_home or observed or scanned else callsign
+
+
+func resource_band() -> String:
+	if resource_potential < 34:
+		return "LOW"
+	if resource_potential < 68:
+		return "MEDIUM"
+	return "HIGH"
+
+
+func observed_threat_text() -> String:
+	return "NO OBVIOUS ACTIVITY" if threat_level < 35 else "UNCLEAR"
+
+
+# Future data: probes, mining sites, detailed scan results, event flags, technology effects,
 # and hidden Dark Forest threat data can be represented here.

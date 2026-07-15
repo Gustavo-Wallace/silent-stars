@@ -4,11 +4,15 @@
 [ext_resource type="PackedScene" path="res://scenes/universe/universe_map.tscn" id="2_map"]
 [ext_resource type="Script" uid="uid://btmwxelgyuylg" path="res://scripts/camera/camera_controller.gd" id="3_camera"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="4_hud"]
+[ext_resource type="Script" uid="uid://crf8kb82h7ye1" path="res://scripts/core/game_state.gd" id="5_state"]
 
 [node name="Main" type="Node2D" unique_id=1802537095]
 script = ExtResource("1_main")
 
 [node name="UniverseMap" parent="." unique_id=637661831 instance=ExtResource("2_map")]
+
+[node name="GameState" type="Node" parent="." unique_id=932766509]
+script = ExtResource("5_state")
 
 [node name="CameraController" type="Camera2D" parent="." unique_id=142645263]
 position_smoothing_enabled = true
