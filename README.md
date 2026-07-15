@@ -59,6 +59,10 @@ Sondas agora aparecem como `PROBES atual/capacidade`. Use **Fabricate Probe** pa
 
 O HUD foi reorganizado em telemetria compacta à esquerda, ações contextuais à direita e log central no rodapé. Painéis secundários como Research permanecem recolhidos até serem solicitados; os custos aparecem diretamente nas ações importantes.
 
+## Silent Protocol
+
+Esta versão experimental tem uma run curta: reúna 50 DATA, pesquise duas tecnologias de Silence/Survival, construa duas infraestruturas silenciosas e mantenha o Void abaixo de CONVERGING. Então execute o **Silent Protocol**.
+
 ## Direção visual
 
 Um observatório minimalista de fundo quase preto, estrelas suaves, rotas discretas e pulsos cianos que partem do sistema natal.

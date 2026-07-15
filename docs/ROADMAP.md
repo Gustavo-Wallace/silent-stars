@@ -48,6 +48,10 @@ A Probe Bay agora permite fabricar sondas e expandir a capacidade de armazenamen
 
 A interface foi reorganizada para devolver protagonismo ao mapa: telemetria compacta, log separado dos controles, ações contextuais e custos legíveis. Antes de novos sistemas, esta etapa priorizou clareza, espaço negativo e atmosfera.
 
+## Etapa 12 — Run experimental (implementada)
+
+O RunDirector transforma os sistemas existentes em uma meta curta: o Silent Protocol. Objetivo, checklist, pressão após o ciclo 40 e painéis de vitória/derrota formam a base para futuras runs e reinícios.
+
 ## Próximos passos
 
 1. Eventos com escolhas.

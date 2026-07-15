@@ -14,6 +14,7 @@ signal infrastructure_requested(id: String)
 signal blackout_requested
 signal fabricate_probe_requested
 signal expand_probe_bay_requested
+signal protocol_requested
 
 const MAX_LOG_MESSAGES := 5
 
@@ -45,6 +46,9 @@ const MAX_LOG_MESSAGES := 5
 @onready var research_button: Button = $ResearchPanel/Research
 @onready var research_close: Button = $ResearchPanel/Close
 @onready var probe_button: Button = $DetailsPanel/LaunchProbe
+@onready var objective_label: Label = $Objective
+@onready var protocol_label: Label = $Protocol
+@onready var protocol_button: Button = $ExecuteProtocol
 
 var selected_system: StarSystemData
 var log_messages: Array[String] = []
@@ -153,8 +157,27 @@ func update_probes(count: int, capacity: int) -> void:
 	probes_capacity = capacity
 	resource_readout.text = "ENERGY  %03d\nMATTER  %03d\nDATA    %03d\nPROBES  %02d/%02d" % [research_energy, research_matter, research_data, probes_count, probes_capacity]
 
-func _on_fabricate_pressed() -> void: fabricate_probe_requested.emit()
-func _on_expand_bay_pressed() -> void: expand_probe_bay_requested.emit()
+func _on_fabricate_pressed() -> void:
+	fabricate_probe_requested.emit()
+func _on_expand_bay_pressed() -> void:
+	expand_probe_bay_requested.emit()
+
+func update_objective(text: String) -> void:
+	objective_label.text = text
+
+func update_protocol(text: String, ready: bool) -> void:
+	protocol_label.text = text
+	protocol_button.disabled = not ready
+
+func _on_protocol_pressed() -> void:
+	protocol_requested.emit()
+
+func show_run_report(victory: bool, report: String) -> void:
+	event_title.text = "RUN COMPLETE" if victory else "LOCATION INFERRED"
+	event_description.text = report
+	event_result.text = "Review final telemetry."
+	event_continue.visible = true
+	event_panel.visible = true
 
 
 func set_technologies(next_technologies: Array[TechnologyData]) -> void:

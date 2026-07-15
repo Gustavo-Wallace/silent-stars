@@ -7,6 +7,7 @@ extends Node2D
 @onready var event_manager: EventManager = $EventManager
 @onready var technology_manager: TechnologyManager = $TechnologyManager
 @onready var infrastructure_manager: InfrastructureManager = $InfrastructureManager
+@onready var run_director = $RunDirector
 
 
 func _ready() -> void:
@@ -34,6 +35,7 @@ func _ready() -> void:
 	hud.blackout_requested.connect(game_state.enter_blackout)
 	hud.fabricate_probe_requested.connect(_on_fabricate_probe)
 	hud.expand_probe_bay_requested.connect(game_state.expand_probe_bay)
+	hud.protocol_requested.connect(run_director.execute_protocol)
 	game_state.state_changed.connect(hud.update_game_state)
 	game_state.resources_changed.connect(hud.update_resources)
 	game_state.probes_changed.connect(hud.update_probes)
@@ -46,6 +48,12 @@ func _ready() -> void:
 	technology_manager.configure(game_state)
 	infrastructure_manager.catalog_changed.connect(hud.set_infrastructure)
 	infrastructure_manager.configure(game_state)
+	run_director.objective_changed.connect(hud.update_objective)
+	run_director.protocol_changed.connect(hud.update_protocol)
+	run_director.run_finished.connect(hud.show_run_report)
+	game_state.state_changed.connect(func(_a:int,_b:int,_c:String): run_director.refresh())
+	game_state.resources_changed.connect(func(_a:int,_b:int,_c:int): run_director.refresh())
+	run_director.configure(game_state, technology_manager, infrastructure_manager, universe_map)
 	game_state.publish_initial_state()
 	_on_travel_status_changed(game_state.current_system_id, false)
 
