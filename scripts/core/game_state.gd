@@ -7,6 +7,7 @@ signal log_message_added(message: String)
 signal signature_increased(intensity: float)
 signal resources_changed(energy: int, matter: int, data: int)
 signal travel_status_changed(current_system_id: int, is_traveling: bool)
+signal probes_changed(count: int)
 
 var current_cycle: int = 1
 var cosmic_signature: int = 0
@@ -25,11 +26,32 @@ var extraction_yield_modifier: float = 1.0
 var analysis_yield_modifier: float = 1.0
 var passive_observe_data_bonus: int = 0
 var event_risk_modifier: float = 1.0
+var probes_available: int = 2
+var probes_launched_total: int = 0
+var probes_lost_total: int = 0
+var probe_signature_modifier: float = 1.0
+
+func launch_probe() -> bool:
+	if probes_available <= 0: add_log_message("No probes available."); return false
+	if energy < 1: add_log_message("Insufficient energy for probe launch."); return false
+	probes_available -= 1; probes_launched_total += 1; energy -= 1
+	probes_changed.emit(probes_available)
+	resources_changed.emit(energy, matter, data)
+	_advance_action(_modified_signature(1, probe_signature_modifier), 0.22)
+	return true
+
+func apply_probe_result(system: StarSystemData, result: String, data_gain: int, matter_gain: int, signature_gain: int, watched: bool) -> void:
+	data += data_gain; matter += matter_gain
+	resources_changed.emit(energy, matter, data)
+	if signature_gain > 0: _advance_signature_only(signature_gain, 0.3)
+	if watched: forced_contact_state = "WATCHED"; _refresh_contact_state(); state_changed.emit(current_cycle, cosmic_signature, contact_state)
+	add_log_message(result)
 
 
 func publish_initial_state() -> void:
 	state_changed.emit(current_cycle, cosmic_signature, contact_state)
 	resources_changed.emit(energy, matter, data)
+	probes_changed.emit(probes_available)
 	log_message_added.emit("The void remains quiet.")
 
 

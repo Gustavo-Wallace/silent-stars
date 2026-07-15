@@ -35,6 +35,10 @@ Abra **Research** para converter ENERGY, MATTER e DATA em avanços permanentes. 
 
 As oito tecnologias iniciais reduzem assinatura de scan/viagem, reduzem o custo de viagem, melhoram análise e extração, concedem DATA em observações passivas ou diminuem a incidência de eventos perigosos. Tecnologias com dependências permanecem bloqueadas até a pesquisa anterior ser concluída.
 
+## Sondas remotas
+
+O inventário começa com **PROBES 02**. Selecione um sistema observado fora da sua localização e use **Launch Probe**: custa 1 ENERGY e uma sonda, sem mover a nave principal. Sondas podem revelar leituras, arquivar DATA ou se perder; regiões ameaçadoras e uma assinatura alta aumentam o risco de rastreamento.
+
 ## Direção visual
 
 Um observatório minimalista de fundo quase preto, estrelas suaves, rotas discretas e pulsos cianos que partem do sistema natal.

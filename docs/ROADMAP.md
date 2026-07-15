@@ -24,12 +24,16 @@ Uma nave visível agora viaja entre sistemas observados, consumindo energia e de
 
 O observatório agora mantém uma lista de pesquisa nas categorias Silence, Exploration, Industry, Analysis e Survival. Oito tecnologias consomem energia, matéria e dados para alterar imediatamente assinatura de scan e viagem, custo de viagem, rendimento de análise/extração, observação passiva e risco de eventos.
 
+## Etapa 6 — Sondas remotas (implementada)
+
+Sondas partem da localização atual sem deslocar a nave principal. Elas consomem energia e uma unidade do inventário, viajam visualmente e retornam telemetria, dados ou sinais de risco. Ameaça, distância, assinatura e tecnologias de sobrevivência influenciam a chance de perda e rastreamento.
+
 ## Próximos passos
 
-1. Sondas remotas.
-2. Eventos com escolhas.
-3. Infraestrutura orbital.
-4. Ameaça invisível progressiva.
-5. Árvore tecnológica visual.
+1. Eventos com escolhas.
+2. Infraestrutura orbital.
+3. Ameaça invisível progressiva.
+4. Árvore tecnológica visual.
+5. Construção de sondas.
 6. Save / load.
-7. Condições experimentais de vitória / derrota.
+7. Condições de vitória / derrota.

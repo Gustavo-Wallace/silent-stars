@@ -8,6 +8,7 @@ signal analyze_requested
 signal extraction_requested
 signal travel_requested
 signal research_requested(technology_id: String)
+signal probe_requested
 
 const MAX_LOG_MESSAGES := 5
 
@@ -35,6 +36,7 @@ const MAX_LOG_MESSAGES := 5
 @onready var research_details: Label = $ResearchPanel/Details
 @onready var research_button: Button = $ResearchPanel/Research
 @onready var research_close: Button = $ResearchPanel/Close
+@onready var probe_button: Button = $DetailsPanel/LaunchProbe
 
 var selected_system: StarSystemData
 var log_messages: Array[String] = []
@@ -44,6 +46,7 @@ var technologies: Array[TechnologyData] = []
 var research_energy: int = 0
 var research_matter: int = 0
 var research_data: int = 0
+var probes_count: int = 0
 var selected_technology_index: int = -1
 
 
@@ -54,6 +57,7 @@ func _ready() -> void:
 	extraction_button.pressed.connect(_on_extraction_pressed)
 	travel_button.pressed.connect(_on_travel_pressed)
 	event_continue.pressed.connect(_on_event_continue_pressed)
+	probe_button.pressed.connect(func(): probe_requested.emit())
 	research_toggle.pressed.connect(_on_research_toggle_pressed)
 	research_close.pressed.connect(_on_research_close_pressed)
 	research_button.pressed.connect(_on_research_pressed)
@@ -63,6 +67,7 @@ func _ready() -> void:
 	analyze_button.disabled = true
 	extraction_button.disabled = true
 	travel_button.disabled = true
+	probe_button.disabled = true
 	event_panel.visible = false
 	research_panel.visible = false
 
@@ -75,6 +80,7 @@ func display_system(data: StarSystemData) -> void:
 	analyze_button.disabled = data.is_home or not data.observed
 	extraction_button.disabled = data.is_home or not data.scanned or data.depleted
 	travel_button.disabled = is_traveling or data.id == current_system_id or not data.observed
+	probe_button.disabled = data.id == current_system_id or not data.observed
 	if data.id != current_system_id:
 		extraction_button.disabled = true
 	if data.is_home:
@@ -105,7 +111,11 @@ func update_resources(energy: int, matter: int, data: int) -> void:
 	research_energy = energy
 	research_matter = matter
 	research_data = data
-	resource_readout.text = "ENERGY  %03d\nMATTER  %03d\nDATA    %03d" % [energy, matter, data]
+	resource_readout.text = "ENERGY  %03d\nMATTER  %03d\nDATA    %03d\nPROBES  %02d" % [energy, matter, data, probes_count]
+
+func update_probes(count: int) -> void:
+	probes_count = count
+	resource_readout.text = "ENERGY  %03d\nMATTER  %03d\nDATA    %03d\nPROBES  %02d" % [research_energy, research_matter, research_data, probes_count]
 	_refresh_research()
 
 

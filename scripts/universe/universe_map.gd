@@ -11,9 +11,12 @@ signal extraction_completed(data: StarSystemData, result: Dictionary)
 signal travel_requested(destination: StarSystemData, distance: float)
 signal travel_arrived(destination: StarSystemData)
 signal action_denied(message: String)
+signal probe_requested(destination: StarSystemData, distance: float)
+signal probe_arrived(destination: StarSystemData, probe: ProbeData)
 
 const STAR_SYSTEM_SCENE := preload("res://scenes/universe/star_system_node.tscn")
 const RESOURCE_SERVICE := preload("res://scripts/universe/resource_service.gd")
+const PROBE_SCENE := preload("res://scenes/universe/probe_node.tscn")
 const MAP_HALF_EXTENT := 2300.0
 const SYSTEM_COUNT := 46
 const MAP_SEED := 17012026
@@ -234,6 +237,24 @@ func begin_travel_to_selected() -> void:
 	if origin == null:
 		return
 	travel_requested.emit(selected_data, origin.position.distance_to(selected_data.position))
+
+func launch_probe_to_selected() -> void:
+	if selected_data == null or selected_data.id == current_system_id or not selected_data.observed:
+		action_denied.emit("Observation data required before probe launch.")
+		return
+	var origin := _system_by_id(current_system_id)
+	probe_requested.emit(selected_data, origin.position.distance_to(selected_data.position))
+
+func start_probe(destination: StarSystemData, probe: ProbeData) -> void:
+	var node := PROBE_SCENE.instantiate() as ProbeNode
+	add_child(node)
+	node.launch(probe, _system_by_id(current_system_id).position, destination.position)
+	node.arrived.connect(func(data: ProbeData): _on_probe_arrived(destination, data))
+	trigger_world_pulse(_system_by_id(current_system_id).position, 0.18)
+
+func _on_probe_arrived(destination: StarSystemData, probe: ProbeData) -> void:
+	trigger_world_pulse(destination.position, 0.28)
+	probe_arrived.emit(destination, probe)
 
 
 func start_ship_travel(destination: StarSystemData) -> void:
