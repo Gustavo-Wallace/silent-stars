@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/universe/star_system_node.gd" id="1_star"]
+
+[sub_resource type="CircleShape2D" id="CircleShape_system"]
+radius = 20.0
+
+[node name="StarSystemNode" type="Area2D"]
+input_pickable = true
+script = ExtResource("1_star")
+
+[node name="ClickArea" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape_system")
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
