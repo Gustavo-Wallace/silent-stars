@@ -9,6 +9,7 @@ signal extraction_requested
 signal travel_requested
 signal research_requested(technology_id: String)
 signal probe_requested
+signal event_choice_requested(index: int)
 
 const MAX_LOG_MESSAGES := 5
 
@@ -30,6 +31,9 @@ const MAX_LOG_MESSAGES := 5
 @onready var event_description: Label = $ArrivalEvent/Description
 @onready var event_result: Label = $ArrivalEvent/Result
 @onready var event_continue: Button = $ArrivalEvent/Continue
+@onready var choice_one: Button = $ArrivalEvent/ChoiceOne
+@onready var choice_two: Button = $ArrivalEvent/ChoiceTwo
+@onready var choice_three: Button = $ArrivalEvent/ChoiceThree
 @onready var research_toggle: Button = $ResearchToggle
 @onready var research_panel: ColorRect = $ResearchPanel
 @onready var technology_list: ItemList = $ResearchPanel/TechnologyList
@@ -57,6 +61,9 @@ func _ready() -> void:
 	extraction_button.pressed.connect(_on_extraction_pressed)
 	travel_button.pressed.connect(_on_travel_pressed)
 	event_continue.pressed.connect(_on_event_continue_pressed)
+	choice_one.pressed.connect(func(): event_choice_requested.emit(0))
+	choice_two.pressed.connect(func(): event_choice_requested.emit(1))
+	choice_three.pressed.connect(func(): event_choice_requested.emit(2))
 	probe_button.pressed.connect(func(): probe_requested.emit())
 	research_toggle.pressed.connect(_on_research_toggle_pressed)
 	research_close.pressed.connect(_on_research_close_pressed)
@@ -138,6 +145,17 @@ func show_arrival_event(event: ArrivalEventData) -> void:
 	event_result.text = event.result
 	event_panel.visible = true
 
+func show_choice_event(event: EventData) -> void:
+	event_title.text = "%s · %s" % [event.title.to_upper(), event.severity]
+	event_description.text = "[%s] %s" % [event.source, event.description]
+	event_result.text = "Choose a response."
+	var buttons := [choice_one, choice_two, choice_three]
+	for index in buttons.size():
+		buttons[index].visible = index < event.choices.size()
+		if index < event.choices.size(): buttons[index].text = "%s  —  %s" % [event.choices[index].label, event.choices[index].summary]
+	event_continue.visible = false
+	event_panel.visible = true
+
 
 func add_log_message(message: String) -> void:
 	log_messages.append("› " + message)
@@ -177,6 +195,9 @@ func _on_travel_pressed() -> void:
 
 
 func _on_event_continue_pressed() -> void:
+	event_panel.visible = false
+
+func close_event() -> void:
 	event_panel.visible = false
 
 

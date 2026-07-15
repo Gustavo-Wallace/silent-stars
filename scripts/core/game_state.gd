@@ -58,6 +58,20 @@ func publish_initial_state() -> void:
 func add_log_message(message: String) -> void:
 	log_message_added.emit(message)
 
+func apply_choice(effects: Dictionary, message: String) -> void:
+	energy += int(effects.get("energy", 0))
+	matter += int(effects.get("matter", 0))
+	data = maxi(0, data + int(effects.get("data", 0)))
+	resources_changed.emit(energy, matter, data)
+	var signature_delta: int = int(effects.get("signature", 0))
+	if signature_delta > 0: _advance_signature_only(signature_delta, 0.3)
+	elif signature_delta < 0: reduce_signature(-signature_delta)
+	if effects.has("contact"):
+		forced_contact_state = str(effects["contact"])
+		_refresh_contact_state()
+		state_changed.emit(current_cycle, cosmic_signature, contact_state)
+	add_log_message(message)
+
 
 func complete_passive_observation(system: StarSystemData) -> void:
 	current_cycle += 1

@@ -3,6 +3,34 @@ extends Node
 ## Generates compact, automatic arrival events. Choice branches can be added later.
 
 var rng := RandomNumberGenerator.new()
+var pending_event: EventData
+
+func create_choice_event(system: StarSystemData, source_name: String, signature: int) -> EventData:
+	var event := EventData.new()
+	event.source = source_name
+	if system.system_type == "Signal Ruin" or system.system_type == "Red Anomaly":
+		event.title="Repeating Signal"; event.severity="MEDIUM"; event.description="A clean pulse repeats beneath local static. It is too deliberate to be weather."
+		event.choices=[_choice("ARCHIVE SILENTLY","+2 DATA",{"data":2},"The signal was archived without reply."),_choice("DEEP DECODE","+5 DATA · +2 SIGNATURE",{"data":5,"signature":2},"The pattern opened in the noise."),_choice("BURN RECORDING","-1 ENERGY · -1 SIGNATURE",{"energy":-1,"signature":-1},"The recording was erased.")]
+	elif system.system_type == "Mineral Belt" or system.system_type == "Dead World":
+		event.title="Cold Debris Field"; event.severity="LOW"; event.description="Cold debris drifts in predictable arcs. Some of it is useful."
+		event.choices=[_choice("COLLECT FRAGMENTS","+3 MATTER · +1 SIGNATURE",{"matter":3,"signature":1},"Fragments entered the hold."),_choice("IGNORE DEBRIS","NO EFFECT",{},"The debris continued its patient orbit."),_choice("SCAN COMPOSITION","+1 DATA · +1 SIGNATURE",{"data":1,"signature":1},"Composition archived.")]
+	else:
+		event.title="Unmapped Transit"; event.severity="HIGH" if signature >= 25 else "LOW"; event.description="The route behind you persists longer than it should."
+		event.choices=[_choice("RECORD ROUTE","+2 DATA",{"data":2},"The route was recorded."),_choice("DELETE ROUTE","-1 SIGNATURE",{"signature":-1},"The route was deleted before it became a confession."),_choice("BROADCAST CORRECTION","+3 DATA · +2 SIGNATURE",{"data":3,"signature":2},"A correction entered the dark.")]
+	pending_event = event
+	return event
+
+func choose(index: int, state: GameState) -> void:
+	if pending_event == null or index < 0 or index >= pending_event.choices.size(): return
+	var choice: EventChoiceData = pending_event.choices[index]
+	if state.energy + int(choice.effects.get("energy",0)) < 0: state.add_log_message("Insufficient resources."); return
+	state.apply_choice(choice.effects, choice.log_message)
+	pending_event = null
+
+func _choice(label_text: String, summary_text: String, effects: Dictionary, message: String) -> EventChoiceData:
+	var choice := EventChoiceData.new()
+	choice.label=label_text; choice.summary=summary_text; choice.effects=effects; choice.log_message=message
+	return choice
 
 
 func _ready() -> void:

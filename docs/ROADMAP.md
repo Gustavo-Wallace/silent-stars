@@ -28,6 +28,10 @@ O observatório agora mantém uma lista de pesquisa nas categorias Silence, Expl
 
 Sondas partem da localização atual sem deslocar a nave principal. Elas consomem energia e uma unidade do inventário, viajam visualmente e retornam telemetria, dados ou sinais de risco. Ameaça, distância, assinatura e tecnologias de sobrevivência influenciam a chance de perda e rastreamento.
 
+## Etapa 7 — Eventos com escolhas (implementada)
+
+Eventos de chegada agora apresentam respostas alternativas com custos e consequências sobre recursos, assinatura cósmica e estado de contato. A estrutura de dados permite ampliar o catálogo para eventos de sonda, scan, assinatura alta e cadeias narrativas futuras.
+
 ## Próximos passos
 
 1. Eventos com escolhas.

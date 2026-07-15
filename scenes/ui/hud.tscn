@@ -364,6 +364,30 @@ theme_override_colors/font_color = Color(0.66, 0.91, 1, 1)
 theme_override_font_sizes/font_size = 12
 text = "CONTINUE"
 
+[node name="ChoiceOne" type="Button" parent="ArrivalEvent"]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 211.0
+offset_right = 485.0
+offset_bottom = 242.0
+theme_override_font_sizes/font_size = 11
+
+[node name="ChoiceTwo" type="Button" parent="ArrivalEvent"]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 248.0
+offset_right = 485.0
+offset_bottom = 279.0
+theme_override_font_sizes/font_size = 11
+
+[node name="ChoiceThree" type="Button" parent="ArrivalEvent"]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 285.0
+offset_right = 485.0
+offset_bottom = 316.0
+theme_override_font_sizes/font_size = 11
+
 [node name="ResearchPanel" type="ColorRect" parent="."]
 layout_mode = 0
 mouse_filter = 0

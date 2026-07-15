@@ -39,6 +39,10 @@ As oito tecnologias iniciais reduzem assinatura de scan/viagem, reduzem o custo 
 
 O inventário começa com **PROBES 02**. Selecione um sistema observado fora da sua localização e use **Launch Probe**: custa 1 ENERGY e uma sonda, sem mover a nave principal. Sondas podem revelar leituras, arquivar DATA ou se perder; regiões ameaçadoras e uma assinatura alta aumentam o risco de rastreamento.
 
+## Eventos com escolhas
+
+Chegadas podem abrir uma telemetria com três respostas. Cada escolha indica seus ganhos, custos ou assinatura: arquivar dados, apagar rastros, coletar recursos ou emitir uma resposta. Os efeitos são aplicados imediatamente e registrados no log.
+
 ## Direção visual
 
 Um observatório minimalista de fundo quase preto, estrelas suaves, rotas discretas e pulsos cianos que partem do sistema natal.

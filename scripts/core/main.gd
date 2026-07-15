@@ -27,6 +27,7 @@ func _ready() -> void:
 	hud.extraction_requested.connect(universe_map.extract_selected_system)
 	hud.travel_requested.connect(universe_map.begin_travel_to_selected)
 	hud.probe_requested.connect(universe_map.launch_probe_to_selected)
+	hud.event_choice_requested.connect(_on_event_choice)
 	hud.research_requested.connect(technology_manager.research)
 	game_state.state_changed.connect(hud.update_game_state)
 	game_state.resources_changed.connect(hud.update_resources)
@@ -48,9 +49,8 @@ func _on_travel_requested(destination: StarSystemData, distance: float) -> void:
 
 func _on_travel_arrived(destination: StarSystemData) -> void:
 	game_state.complete_travel(destination)
-	var arrival_event: ArrivalEventData = event_manager.create_arrival_event(destination, game_state.cosmic_signature, game_state.event_risk_modifier)
-	game_state.apply_arrival_event(arrival_event)
-	hud.show_arrival_event(arrival_event)
+	var arrival_event: EventData = event_manager.create_choice_event(destination, "Arrival", game_state.cosmic_signature)
+	hud.show_choice_event(arrival_event)
 
 
 func _on_travel_status_changed(system_id: int, traveling: bool) -> void:
@@ -61,6 +61,13 @@ func _on_travel_status_changed(system_id: int, traveling: bool) -> void:
 
 func _on_research_completed(_technology: TechnologyData) -> void:
 	universe_map.trigger_signature_pulse(0.25)
+
+func choose_event(index: int) -> void:
+	event_manager.choose(index, game_state)
+
+func _on_event_choice(index: int) -> void:
+	choose_event(index)
+	hud.close_event()
 
 func _on_probe_requested(destination: StarSystemData, distance: float) -> void:
 	if game_state.launch_probe():
