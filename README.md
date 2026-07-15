@@ -55,6 +55,10 @@ Ações ativas e viagens longas atraem a atenção invisível do vazio. Use **En
 
 Sondas agora aparecem como `PROBES atual/capacidade`. Use **Fabricate Probe** para criar uma unidade por ENERGY, MATTER e DATA; **Expand Probe Bay** aumenta a capacidade em dois, com custo crescente. Um Probe Dock reduz o custo de fabricação.
 
+## Interface
+
+O HUD foi reorganizado em telemetria compacta à esquerda, ações contextuais à direita e log central no rodapé. Painéis secundários como Research permanecem recolhidos até serem solicitados; os custos aparecem diretamente nas ações importantes.
+
 ## Direção visual
 
 Um observatório minimalista de fundo quase preto, estrelas suaves, rotas discretas e pulsos cianos que partem do sistema natal.

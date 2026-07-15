@@ -44,6 +44,10 @@ Void attention acompanha ações agressivas e viagens longas, convertendo-se em 
 
 A Probe Bay agora permite fabricar sondas e expandir a capacidade de armazenamento. A economia conecta matéria, energia, dados, infraestrutura local e exploração remota.
 
+## Etapa 11 — UI/UX polish (implementada)
+
+A interface foi reorganizada para devolver protagonismo ao mapa: telemetria compacta, log separado dos controles, ações contextuais e custos legíveis. Antes de novos sistemas, esta etapa priorizou clareza, espaço negativo e atmosfera.
+
 ## Próximos passos
 
 1. Eventos com escolhas.

@@ -56,22 +56,19 @@ var research_matter: int = 0
 var research_data: int = 0
 var probes_count: int = 0
 var probes_capacity: int = 4
+var infrastructure: Array[InfrastructureData] = []
+var selected_technology_index: int = -1
 
 func update_void(_attention: int, pressure: String) -> void:
 	location_readout.text = location_readout.text.split("\n")[0] + "\nVOID PRESSURE     " + pressure
 
 func _on_blackout_pressed() -> void:
 	blackout_requested.emit()
-var infrastructure: Array[InfrastructureData] = []
-
 func set_infrastructure(items: Array[InfrastructureData]) -> void:
 	infrastructure = items
 
 func _on_infrastructure_pressed() -> void:
 	if not infrastructure.is_empty(): infrastructure_requested.emit(infrastructure[0].structure_id)
-var selected_technology_index: int = -1
-
-
 func _ready() -> void:
 	passive_button.pressed.connect(_on_passive_observe_pressed)
 	scan_button.pressed.connect(_on_active_scan_pressed)
@@ -95,6 +92,12 @@ func _ready() -> void:
 	probe_button.disabled = true
 	event_panel.visible = false
 	research_panel.visible = false
+	passive_button.visible = false
+	scan_button.visible = false
+	analyze_button.visible = false
+	extraction_button.visible = false
+	travel_button.visible = false
+	probe_button.visible = false
 
 
 func display_system(data: StarSystemData) -> void:
@@ -106,6 +109,12 @@ func display_system(data: StarSystemData) -> void:
 	extraction_button.disabled = data.is_home or not data.scanned or data.depleted
 	travel_button.disabled = is_traveling or data.id == current_system_id or not data.observed
 	probe_button.disabled = data.id == current_system_id or not data.observed
+	passive_button.visible = not data.is_home and not data.observed
+	scan_button.visible = not data.is_home and not data.scanned
+	analyze_button.visible = data.observed and not data.is_home
+	travel_button.visible = data.observed and not data.is_home
+	probe_button.visible = data.observed and not data.is_home
+	extraction_button.visible = data.scanned and data.id == current_system_id and not data.is_home
 	if data.id != current_system_id:
 		extraction_button.disabled = true
 	if data.is_home:
